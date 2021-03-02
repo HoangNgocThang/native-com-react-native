@@ -28,7 +28,8 @@ public class MainApplication extends Application implements ReactApplication {
             List<ReactPackage> packages = new PackageList(this).getPackages();
             // Packages that cannot be autolinked yet can be added manually here, for example:
             // packages.add(new MyReactNativePackage());
-            packages.add(new MyAppPackage());
+            packages.add(new CalenderPackage());
+            packages.add(new MyFirebaseMessagingServicePackage());
             return packages;
         }
 
@@ -48,8 +49,8 @@ public class MainApplication extends Application implements ReactApplication {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
         initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-        MyFirebaseMessagingService mfms= new MyFirebaseMessagingService();
-        mfms.register();
+        MyFirebaseMessagingService myFirebaseMessagingService = MyFirebaseMessagingService.getInstance();
+        myFirebaseMessagingService.register();
     }
 
     /**
@@ -81,7 +82,6 @@ public class MainApplication extends Application implements ReactApplication {
             }
         }
     }
-
 
 
 }

@@ -10,16 +10,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
-import com.google.firebase.installations.FirebaseInstallations;
-import com.google.firebase.installations.internal.FidListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -29,16 +25,28 @@ import java.util.Random;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    /*
-   https://firebase.google.com/docs/cloud-messaging/android/client?authuser=0
-   The registration token may change when:
-   - The app is restored on a new device
-   - The user uninstalls/reinstall the app
-   - The user clears app data. */
+    /**
+     * https://firebase.google.com/docs/cloud-messaging/android/client?authuser=0
+     * The registration token may change when:
+     * - The app is restored on a new device
+     * - The user uninstalls/reinstall the app
+     * - The user clears app data.
+     */
 
     private static final String TAG = "#MyFirebaseMessagingService";
+    private String token = "";
+
+    private static MyFirebaseMessagingService instance;
 
     public MyFirebaseMessagingService() {
+    }
+
+
+    public static synchronized MyFirebaseMessagingService getInstance() {
+        if (instance == null) {
+            instance = new MyFirebaseMessagingService();
+        }
+        return instance;
     }
 
     void register() {
@@ -51,22 +59,37 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             return;
                         }
                         // Get new FCM registration token
-                        String token = task.getResult();
+                        setToken(task.getResult());
                         Log.d("TOKEN", token);
                     }
                 });
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    /**
+     * There are two scenarios when onNewToken is called:
+     * 1) When a new token is generated on initial app startup
+     * 2) Whenever an existing token is changed
+     * Under #2, there are three scenarios when the existing token is changed:
+     * A) App is restored to a new device
+     * B) User uninstalls/reinstalls the app
+     * C) User clears app data
+     */
     @Override
-    public void onNewToken(@NonNull String s) {
-        Log.d("Refreshed token: ", s);
+    public void onNewToken(@NonNull String newToken) {
+      setToken(newToken);
     }
 
     @SuppressLint("LongLogTag")
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        // TODO(developer): Handle FCM messages here.
-
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
@@ -133,4 +156,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
 
+
+    @Override
+    public void onDeletedMessages() {
+        super.onDeletedMessages();
+    }
+
+    @Override
+    public void onSendError(@NonNull String s, @NonNull Exception e) {
+        super.onSendError(s, e);
+    }
 }

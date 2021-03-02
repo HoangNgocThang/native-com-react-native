@@ -20,10 +20,38 @@ import {
 import { NativeModules, Button } from 'react-native';
 
 const App = () => {
+
+  const onClick = () => {
+    const { MyFirebaseMessagingServiceModule } = NativeModules;
+    MyFirebaseMessagingServiceModule.onClickEvent();
+  }
+
+  const onClick2 = async () => {
+    try {
+      const { MyFirebaseMessagingServiceModule } = NativeModules;
+      const res = await MyFirebaseMessagingServiceModule.onClickSendParamsEvent("thang");
+      alert(res);
+    } catch (error) {
+      console.error(e);
+    }
+  }
+
+  const onClick3 = async () => {
+    try {
+      const { MyFirebaseMessagingServiceModule } = NativeModules;
+      const res = await MyFirebaseMessagingServiceModule.getTokenFCM();
+      console.log("HHHHHHH:",res)
+      alert(res);
+    } catch (error) {
+      console.error(e);
+    }
+  }
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
+
         <TouchableOpacity onPress={() => {
           const { CalendarModule } = NativeModules;
           // const { DEFAULT_EVENT_NAME } = CalendarModule.getConstants();
@@ -36,6 +64,26 @@ const App = () => {
             })
         }}>
           <Text>click</Text>
+        </TouchableOpacity>
+
+
+        <TouchableOpacity
+          onPress={onClick}
+          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+          <Text>Test Fcm</Text>
+        </TouchableOpacity>
+
+
+        <TouchableOpacity
+          onPress={onClick2}
+          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+          <Text>Test Fcm send Param</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onClick3}
+          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+          <Text>get token fcm</Text>
         </TouchableOpacity>
       </SafeAreaView>
     </>
