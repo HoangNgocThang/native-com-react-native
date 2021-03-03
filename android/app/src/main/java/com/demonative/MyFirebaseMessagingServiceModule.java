@@ -12,7 +12,7 @@ import com.facebook.react.bridge.ReactMethod;
 
 public class MyFirebaseMessagingServiceModule extends ReactContextBaseJavaModule {
 
-    Context context;
+    public static ReactApplicationContext context;
 
     MyFirebaseMessagingServiceModule(ReactApplicationContext mContext) {
         super(mContext);

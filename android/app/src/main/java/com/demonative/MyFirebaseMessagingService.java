@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -51,9 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public MyFirebaseMessagingService() {
     }
 
-    private void sendEvent(ReactContext reactContext,
-                           String eventName,
-                           @Nullable WritableMap params) {
+    private void sendEvent(ReactContext reactContext, String eventName, @Nullable WritableMap params) {
         reactContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);
@@ -104,26 +103,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-            String body = remoteMessage.getData().get("body");
-            String title = remoteMessage.getData().get("title");
-            Log.d("Send message: ", body + " " + title);
-
-            setMsgBody(remoteMessage.getData().get("body"));
-            setMsgTitle(remoteMessage.getData().get("title"));
-//            if (/* Check if data needs to be processed by long running job */ true) {
-//                // For long-running tasks (10 seconds or more) use WorkManager.
-//                scheduleJob();
-//            } else {
-//                // Handle message within 10 seconds
-//                handleNow();
-//            }
+            String bodySendMessage = remoteMessage.getData().get("body");
+            String titleSendMessage = remoteMessage.getData().get("title");
+            Log.d("Send message: ", bodySendMessage + " " + titleSendMessage);
+            WritableMap storedMap = Arguments.createMap();
+            storedMap.putString("title", titleSendMessage);
+            storedMap.putString("body", bodySendMessage);
+            sendEvent(MyFirebaseMessagingServiceModule.context, "onReceivedSendMessageEvent", storedMap);
+//            setMsgBody(remoteMessage.getData().get("body"));
+//            setMsgTitle(remoteMessage.getData().get("title"));
         }
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            String msgTitle = remoteMessage.getNotification().getTitle();
-            String msgBody = remoteMessage.getNotification().getBody();
-            Log.d("Send notification: ", msgTitle + " " + msgBody);
+            String titleSendNotification = remoteMessage.getNotification().getTitle();
+            String bodySendNotification = remoteMessage.getNotification().getBody();
+            Log.d("Send notification: ", titleSendNotification + " " + bodySendNotification);
+
+            WritableMap wm = Arguments.createMap();
+            wm.putString("title", titleSendNotification);
+            wm.putString("body", bodySendNotification);
+            sendEvent(MyFirebaseMessagingServiceModule.context, "onReceivedSendNotificationEvent", wm);
+
+            // Bật Notication lên
             sendNotification(msgTitle, msgBody, null);
         }
 
@@ -133,20 +135,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void sendNotification(String msgTitle, String messageBody, Map<String, String> fcmData) {
         Intent intent = new Intent(this, MainActivity.class);
-//        if (fcmData.size() > 0) {
-//            if (fcmData.containsKey("screen")) {
-//                String screen = fcmData.get("screen");
-//                String props = fcmData.get("props");
-//                MrBenModule.dataScreen = screen;
-//                MrBenModule.dataProps = props;
-//                intent.putExtra("screen", screen);
-//                intent.putExtra("props", props);
-//               /* WritableMap storedMap = Arguments.createMap();
-//                storedMap.putString("screen", screen);
-//                storedMap.putString("props", props);
-//                sendEvent(MrBenModule.reactContext, "FCM.onMessageReceived", storedMap);*/
-//            }
-//        }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),

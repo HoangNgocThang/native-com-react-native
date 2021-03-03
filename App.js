@@ -7,26 +7,41 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import { Colors, } from 'react-native/Libraries/NewAppScreen';
+import { NativeModules, Button, NativeEventEmitter } from 'react-native';
 
-import { NativeModules, Button } from 'react-native';
+class App extends React.Component {
 
-const App = () => {
+  componentDidMount() {
+    const eventEmitter = new NativeEventEmitter(NativeModules.MyFirebaseMessagingServiceModule);
+    this.eventSendMessageListener = eventEmitter.addListener('onReceivedSendMessageEvent', (event) => {
+      console.log('vaoday')
+      console.log(event)
+      Alert.alert(JSON.stringify(event));
+    });
 
-  const onClick = () => {
+    this.eventSendNoticationListener = eventEmitter.addListener('onReceivedSendNotificationEvent', (event) => {
+      console.log('vaoday')
+      console.log(event)
+      Alert.alert(JSON.stringify(event));
+    });
+
+  }
+
+  componentWillUnmount() {
+    this.eventSendMessageListener.remove();
+    this.eventSendNoticationListener.remove();
+  }
+
+  onClick = () => {
     const { MyFirebaseMessagingServiceModule } = NativeModules;
     MyFirebaseMessagingServiceModule.onClickEvent();
   }
 
-  const onClick2 = async () => {
+  onClick2 = async () => {
     try {
       const { MyFirebaseMessagingServiceModule } = NativeModules;
       const res = await MyFirebaseMessagingServiceModule.onClickSendParamsEvent("thang");
@@ -36,7 +51,7 @@ const App = () => {
     }
   }
 
-  const onClick3 = async () => {
+  onClick3 = async () => {
     try {
       const { MyFirebaseMessagingServiceModule } = NativeModules;
       const res = await MyFirebaseMessagingServiceModule.getTokenFCM();
@@ -57,53 +72,80 @@ const App = () => {
     }
   }
 
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
+  onTestCalendarModule = () => {
+    const { CalendarModule } = NativeModules;
+    // const { DEFAULT_EVENT_NAME } = CalendarModule.getConstants();
+    // console.log("vc:",DEFAULT_EVENT_NAME);
+    // CalendarModule.createCalendarEvent('ThangName', 'ThangLocation');
+    CalendarModule.createCalendarCallBackEvent('Party',
+      'My House', (eventId) => {
+        console.log('YYY', eventId)
+      })
+  }
 
-        <TouchableOpacity onPress={() => {
-          const { CalendarModule } = NativeModules;
-          // const { DEFAULT_EVENT_NAME } = CalendarModule.getConstants();
-          // console.log("vc:",DEFAULT_EVENT_NAME);
-          // CalendarModule.createCalendarEvent('ThangName', 'ThangLocation');
+  render() {
+    return (
+      <>
+        <StatusBar barStyle="dark-content" />
+        <SafeAreaView style={{ flex: 1 }}>
+          <Text>Gửi Notication hoặc Gửi Message và xem kết qủa</Text>
+          <Text>Dùng Postmen để send</Text>
 
-          CalendarModule.createCalendarCallBackEvent('Party',
-            'My House', (eventId) => {
-              console.log('YYY', eventId)
-            })
-        }}>
-          <Text>click</Text>
-        </TouchableOpacity>
+          <Text>Post: https://fcm.googleapis.com/fcm/send</Text>
+          <Text>Header:</Text>
+          <Text> Content-Type  || application/json</Text>
+          <Text>Authorization  || key=SERVER_KEY_IN_CLOUL_MESSAGE</Text>
+          <Text style={{color:'blue'}}>1.Send Notication</Text>
+          <Text>Body:</Text>
+          <Text>{`{
+    "data": {
+         "title": "Message payload title11",
+         "body": "Message payload body11"
+         },
+         "to": YOUR_TOKEN_DEVICE,
+          "notification": {"title": "Price drop", "body": "2% off all books"}
 
+}`}</Text>
+          <Text style={{color:'blue'}}>2.Send Message</Text>
+          <Text>{`
+          "data": {
+         "title": "Message payload title11",
+         "body": "Message payload body11"
+         },
+         "to":YOUR_TOKEN_DEVICE,`}</Text>
 
-        <TouchableOpacity
-          onPress={onClick}
-          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
-          <Text>Test Fcm</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={this.onTestCalendarModule}>
+            <Text>click</Text>
+          </TouchableOpacity>
 
+          <TouchableOpacity
+            onPress={this.onClick}
+            style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+            <Text>Test Fcm</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={onClick2}
-          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
-          <Text>Test Fcm send Param</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.onClick2}
+            style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+            <Text>Test Fcm send Param</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={onClick3}
-          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
-          <Text>get token fcm</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.onClick3}
+            style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+            <Text>get token fcm</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={onClick4}
-          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
-          <Text>get data event send message</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    </>
-  );
+          <TouchableOpacity
+            onPress={this.onClick4}
+            style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+            <Text>get data event send message</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </>
+    );
+  }
+
 };
 
 const styles = StyleSheet.create({
