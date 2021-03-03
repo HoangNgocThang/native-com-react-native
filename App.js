@@ -40,10 +40,20 @@ const App = () => {
     try {
       const { MyFirebaseMessagingServiceModule } = NativeModules;
       const res = await MyFirebaseMessagingServiceModule.getTokenFCM();
-      console.log("HHHHHHH:",res)
+      console.log("HHHHHHH:", res)
       alert(res);
     } catch (error) {
       console.error(e);
+    }
+  }
+
+  onClick4 = async () => {
+    try {
+      const { MyFirebaseMessagingServiceModule } = NativeModules;
+      const res = await MyFirebaseMessagingServiceModule.getDataSendMessage();
+      alert(res);
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -84,6 +94,12 @@ const App = () => {
           onPress={onClick3}
           style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
           <Text>get token fcm</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onClick4}
+          style={{ width: 100, height: 30, backgroundColor: 'green', marginTop: 20 }}>
+          <Text>get data event send message</Text>
         </TouchableOpacity>
       </SafeAreaView>
     </>

@@ -14,7 +14,6 @@ public class MyFirebaseMessagingServiceModule extends ReactContextBaseJavaModule
 
     Context context;
 
-
     MyFirebaseMessagingServiceModule(ReactApplicationContext mContext) {
         super(mContext);
         context = mContext;
@@ -42,11 +41,8 @@ public class MyFirebaseMessagingServiceModule extends ReactContextBaseJavaModule
         }
     }
 
-
     @ReactMethod
     public void getTokenFCM(Promise promise) {
-//        MyFirebaseMessagingService myFirebaseMessagingService = new MyFirebaseMessagingService();
-//        System.out.println("GGG:"+ myFirebaseMessagingService.getToken());
         try {
             MyFirebaseMessagingService myFirebaseMessagingService = MyFirebaseMessagingService.getInstance();
             System.out.println("GGG:" + myFirebaseMessagingService.getToken());
@@ -60,6 +56,17 @@ public class MyFirebaseMessagingServiceModule extends ReactContextBaseJavaModule
     public void onMessageReceivedFCM(Promise promise) {
         try {
 
+        } catch (Exception e) {
+            promise.reject(e);
+        }
+    }
+
+    @ReactMethod
+    public void getDataSendMessage(Promise promise) {
+        try {
+            MyFirebaseMessagingService myFirebaseMessagingService = MyFirebaseMessagingService.getInstance();
+            System.out.println("KKK:" + myFirebaseMessagingService.getMsgBody() + myFirebaseMessagingService.getMsgTitle());
+            promise.resolve(myFirebaseMessagingService.getMsgBody() + " " + myFirebaseMessagingService.getMsgTitle());
         } catch (Exception e) {
             promise.reject(e);
         }

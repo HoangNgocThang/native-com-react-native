@@ -40,6 +40,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "#MyFirebaseMessagingService";
     private String token = "";
 
+    // send message
+    private String msgTitle = "";
+    private String msgBody = "";
+
+    // send notication
+
     private static MyFirebaseMessagingService instance;
 
     public MyFirebaseMessagingService() {
@@ -76,14 +82,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 });
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     /**
      * There are two scenarios when onNewToken is called:
      * 1) When a new token is generated on initial app startup
@@ -95,15 +93,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onNewToken(@NonNull String newToken) {
-      setToken(newToken);
+        setToken(newToken);
     }
 
     @SuppressLint("LongLogTag")
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+        System.out.print("Đã vào onMessageReceived");
+
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            String body = remoteMessage.getData().get("body");
+            String title = remoteMessage.getData().get("title");
+            Log.d("Send message: ", body + " " + title);
+
+            setMsgBody(remoteMessage.getData().get("body"));
+            setMsgTitle(remoteMessage.getData().get("title"));
 //            if (/* Check if data needs to be processed by long running job */ true) {
 //                // For long-running tasks (10 seconds or more) use WorkManager.
 //                scheduleJob();
@@ -117,7 +123,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
             String msgTitle = remoteMessage.getNotification().getTitle();
             String msgBody = remoteMessage.getNotification().getBody();
-            Log.d(TAG, "Message Notification Body: " + msgBody);
+            Log.d("Send notification: ", msgTitle + " " + msgBody);
             sendNotification(msgTitle, msgBody, null);
         }
 
@@ -167,6 +173,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getMsgTitle() {
+        return msgTitle;
+    }
+
+    public void setMsgTitle(String msgTitle) {
+        this.msgTitle = msgTitle;
+    }
+
+    public String getMsgBody() {
+        return msgBody;
+    }
+
+    public void setMsgBody(String msgBody) {
+        this.msgBody = msgBody;
+    }
 
     @Override
     public void onDeletedMessages() {
