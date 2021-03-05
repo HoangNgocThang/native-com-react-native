@@ -30,6 +30,8 @@ public class MainApplication extends Application implements ReactApplication {
             // packages.add(new MyReactNativePackage());
             packages.add(new CalenderPackage());
             packages.add(new MyFirebaseMessagingServicePackage());
+            packages.add(new ReactProgressButtonManagerPackage());
+            packages.add(new CustomViewPackage());
             return packages;
         }
 
